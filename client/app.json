@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "FingerprintApp",
-    "slug": "FingerprintApp",
+    "name": "E-Commerce-App",
+    "slug": "E-Commerce-App",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
