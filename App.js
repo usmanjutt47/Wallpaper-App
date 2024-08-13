@@ -2,11 +2,12 @@ import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Image, SafeAreaView } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import HomeScreen from "./screens/HomeScreen";
-import { Ionicons, MaterialIcons, FontAwesome6 } from "@expo/vector-icons";
 import CategoryScreens from "./screens/CategoryScreens";
 import CategoryImages from "./screens/CategoryImages";
-import { SafeAreaView } from "react-native";
+import DownloadImage from "./screens/DownloadImage";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -17,19 +18,22 @@ function BottomTabNavigator() {
       screenOptions={({ route }) => ({
         headerShown: false,
         tabBarIcon: ({ focused, color, size }) => {
-          let iconName;
-
           if (route.name === "Home") {
-            iconName = "compass";
-            return <Ionicons name={iconName} size={size} color={color} />;
+            return <Ionicons name="compass" size={size} color={color} />;
           } else if (route.name === "Category") {
-            iconName = "category";
-            return <MaterialIcons name={iconName} size={size} color={color} />;
+            return (
+              <Image
+                source={require("./assets/images/category.png")}
+                style={{
+                  width: size,
+                  height: size,
+                  tintColor: color,
+                }}
+              />
+            );
           } else if (route.name === "Trending") {
-            iconName = "flame-sharp";
-            return <Ionicons name={iconName} size={size} color={color} />;
+            return <Ionicons name="flame-sharp" size={size} color={color} />;
           }
-
           return null;
         },
         tabBarLabel: () => null,
@@ -37,9 +41,9 @@ function BottomTabNavigator() {
         tabBarInactiveTintColor: "#cecece",
         tabBarStyle: {
           height: 60,
-          backgroundColor: "#fff", // Adjust color as needed
-          elevation: 0, // Removes shadow on Android
-          borderTopWidth: 0, // Removes border on iOS
+          backgroundColor: "#fff",
+          elevation: 0,
+          borderTopWidth: 0,
         },
       })}
     >
@@ -57,6 +61,7 @@ export default function App() {
         <Stack.Navigator screenOptions={{ headerShown: false }}>
           <Stack.Screen name="HomeTabs" component={BottomTabNavigator} />
           <Stack.Screen name="CategoryImages" component={CategoryImages} />
+          <Stack.Screen name="DownloadImage" component={DownloadImage} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaView>

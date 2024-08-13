@@ -7,13 +7,16 @@ import {
   Dimensions,
   ActivityIndicator,
   TextInput,
-  TouchableOpacity,
+  Pressable,
   KeyboardAvoidingView,
   Platform,
+  Modal,
+  Text,
 } from "react-native";
 import { apiCall } from "../api/api";
 import { StatusBar } from "expo-status-bar";
 import { Ionicons } from "@expo/vector-icons";
+import Carousel from "react-native-reanimated-carousel";
 
 const { width, height } = Dimensions.get("window");
 
@@ -23,6 +26,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [searchText, setSearchText] = useState("");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   const handleChangeText = (text) => {
     setSearchText(text);
@@ -60,27 +65,18 @@ export default function Home() {
     fetchImages();
   }, []);
 
+  const handleImagePress = (index) => {
+    setSelectedImageIndex(index);
+    setModalVisible(true);
+  };
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <StatusBar style="auto" />
-      <View
-        style={{
-          backgroundColor: "#fff",
-          height: 50,
-          width: "95%",
-          margin: 5,
-          alignSelf: "center",
-          marginTop: height * 0.05,
-          flexDirection: "row",
-          alignItems: "center",
-          borderRadius: 25,
-          paddingHorizontal: 10,
-          elevation: 2,
-        }}
-      >
+      <View style={styles.searchContainer}>
         <Ionicons
           name="search"
           size={24}
@@ -88,28 +84,26 @@ export default function Home() {
           style={{ marginRight: 10 }}
         />
         <TextInput
-          style={{
-            flex: 1,
-            height: "100%",
-            fontSize: 16,
-          }}
+          style={styles.textInput}
           placeholder="Search..."
           value={searchText}
           onChangeText={handleChangeText}
           cursorColor={"#000"}
         />
         {searchText.length > 0 && (
-          <TouchableOpacity onPress={handleClear} style={{ marginLeft: 10 }}>
+          <Pressable onPress={handleClear} style={{ marginLeft: 10 }}>
             <Ionicons name="close-circle" size={24} color="gray" />
-          </TouchableOpacity>
+          </Pressable>
         )}
       </View>
       <FlatList
         key={2}
         showsVerticalScrollIndicator={false}
         data={data}
-        renderItem={({ item }) => (
-          <Image source={{ uri: item.largeImageURL }} style={styles.image} />
+        renderItem={({ item, index }) => (
+          <Pressable onPress={() => handleImagePress(index)}>
+            <Image source={{ uri: item.largeImageURL }} style={styles.image} />
+          </Pressable>
         )}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.imageList}
@@ -120,6 +114,27 @@ export default function Home() {
           loading ? <ActivityIndicator size="large" color="#0000ff" /> : null
         }
       />
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <Carousel
+            width={width * 0.9}
+            height={height * 0.9}
+            autoPlay={true}
+            renderItem={({ item }) => (
+              <Image
+                source={{ uri: item.largeImageURL }}
+                style={styles.modalImage}
+              />
+            )}
+            mode="parallax"
+            defaultIndex={selectedImageIndex}
+          />
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -129,6 +144,24 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "transparent",
   },
+  searchContainer: {
+    backgroundColor: "#fff",
+    height: 50,
+    width: "95%",
+    margin: 5,
+    alignSelf: "center",
+    marginTop: height * 0.05,
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 25,
+    paddingHorizontal: 10,
+    elevation: 2,
+  },
+  textInput: {
+    flex: 1,
+    height: "100%",
+    fontSize: 16,
+  },
   image: {
     width: width / 2 - 15,
     height: height * 0.4,
@@ -137,6 +170,19 @@ const styles = StyleSheet.create({
     margin: 5,
   },
   imageList: {
+    alignSelf: "center",
+  },
+  modalContainer: {
+    backgroundColor: "grey",
+    width: "100%",
+    height: "100%",
+    alignSelf: "center",
+    alignItems: "center",
+  },
+  modalImage: {
+    width: width * 0.9,
+    height: height * 0.8,
+    borderRadius: 12,
     alignSelf: "center",
   },
 });
