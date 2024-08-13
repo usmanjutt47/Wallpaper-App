@@ -3,44 +3,70 @@ import {
   StyleSheet,
   View,
   Text,
-  Dimensions,
   FlatList,
   Image,
+  Dimensions,
   TouchableOpacity,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { TabView, SceneMap, TabBar } from "react-native-tab-view";
+import { useNavigation } from "@react-navigation/native";
+import { apiCall } from "../api/api"; // Adjust the path as needed
+import { TabBar, TabView } from "react-native-tab-view";
 
 const { width, height } = Dimensions.get("window");
 
-// Sample data with images
 const Data = [
   { title: "Abstract", imageUri: require("../assets/images/abstract.png") },
-  { title: "Amoled", imageUri: require("../assets/images/amoled.png") },
-  { title: "Exclusive", imageUri: require("../assets/images/animal.png") },
+  {
+    title: "Illustrations",
+    imageUri: require("../assets/images/Illustrations.png"),
+  },
+  { title: "Animal", imageUri: require("../assets/images/animal.png") },
   { title: "Games", imageUri: require("../assets/images/games.png") },
   { title: "Gradient", imageUri: require("../assets/images/gradient.png") },
   { title: "Sports", imageUri: require("../assets/images/sports.png") },
+  { title: "Ai generated", imageUri: require("../assets/images/ai.png") },
+  { title: "Fashion", imageUri: require("../assets/images/Fashion.png") },
 ];
 
-function CategoryCard({ title, imageUri }) {
+function CategoryCard({ title, imageUri, onPress }) {
   return (
-    <View style={styles.card}>
+    <TouchableOpacity onPress={onPress} style={styles.card}>
       <Image source={imageUri} style={styles.cardImage} />
       <View style={styles.cardOverlay}>
         <Text style={styles.cardText}>{title}</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
 function CategoriesScreen() {
+  const navigation = useNavigation();
+
+  const onSelectCategory = async (category) => {
+    const response = await apiCall({ q: category });
+
+    if (response.success) {
+      navigation.navigate("CategoryImages", {
+        images: response.data.hits,
+        categoryName: category, // Pass the category name
+      });
+    } else {
+      console.log("API call failed:", response.message);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
         data={Data}
+        showsVerticalScrollIndicator={false}
         renderItem={({ item }) => (
-          <CategoryCard title={item.title} imageUri={item.imageUri} />
+          <CategoryCard
+            title={item.title}
+            imageUri={item.imageUri}
+            onPress={() => onSelectCategory(item.title)}
+          />
         )}
         keyExtractor={(item) => item.title}
         contentContainerStyle={styles.cardList}
@@ -49,11 +75,44 @@ function CategoriesScreen() {
   );
 }
 
-function ColorsScreen() {
+const colorData = [
+  "#000000",
+  "#00FFFF",
+  "#0128FF",
+  "#0ABA00",
+  "#7A7A7A",
+  "#974B00",
+  "#C0FF00",
+  "#E8C03C",
+  "#54299C",
+  "#C0C0C0",
+  "#FE0000",
+  "#FF5ED2",
+  "#FF7000",
+  "#FFFB3A",
+  "#FFFFFF",
+];
+
+function Colors() {
+  const navigation = useNavigation();
+
+  const handlePress = (color) => {
+    console.log("Selected color:", color);
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Colors</Text>
-    </View>
+    <FlatList
+      data={colorData}
+      renderItem={({ item }) => (
+        <TouchableOpacity
+          style={[styles.colorBox, { backgroundColor: item }]}
+          onPress={() => handlePress(item)}
+        />
+      )}
+      keyExtractor={(item) => item}
+      numColumns={3}
+      contentContainerStyle={styles.grid}
+    />
   );
 }
 
@@ -61,13 +120,19 @@ export default function CustomTabView() {
   const [index, setIndex] = useState(0);
   const [routes] = useState([
     { key: "categories", title: "Categories" },
-    { key: "colors", title: "Colors" },
+    { key: "Colors", title: "Colors" },
   ]);
 
-  const renderScene = SceneMap({
-    categories: CategoriesScreen,
-    colors: ColorsScreen,
-  });
+  const renderScene = ({ route }) => {
+    switch (route.key) {
+      case "categories":
+        return <CategoriesScreen />;
+      case "Colors":
+        return <Colors />;
+      default:
+        return null;
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -97,6 +162,7 @@ const styles = StyleSheet.create({
   },
   cardList: {
     padding: 10,
+    alignSelf: "center",
   },
   card: {
     position: "relative",
@@ -124,15 +190,11 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "left",
   },
-  text: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#000",
-  },
   tabBar: {
     backgroundColor: "#fff",
     marginTop: height * 0.02,
     elevation: null,
+    width: height * 0.3,
   },
   tabLabel: {
     fontWeight: "bold",
@@ -140,6 +202,16 @@ const styles = StyleSheet.create({
     textTransform: "capitalize",
   },
   indicator: {
-    backgroundColor: "orange",
+    backgroundColor: "#000",
+  },
+  grid: {
+    padding: 10,
+    alignSelf: "center",
+  },
+  colorBox: {
+    width: width / 3 - 20, // Adjust width to fit 3 items per row
+    height: width / 3 - 20, // Square shape
+    margin: 10,
+    borderRadius: 10,
   },
 });

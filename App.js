@@ -3,8 +3,10 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import HomeScreen from "./screens/HomeScreen";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons, FontAwesome6 } from "@expo/vector-icons";
 import CategoryScreens from "./screens/CategoryScreens";
+import CategoryImages from "./screens/CategoryImages";
+import { SafeAreaView } from "react-native";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -18,7 +20,7 @@ function BottomTabNavigator() {
           let iconName;
 
           if (route.name === "Home") {
-            iconName = "home";
+            iconName = "compass";
             return <Ionicons name={iconName} size={size} color={color} />;
           } else if (route.name === "Category") {
             iconName = "category";
@@ -35,8 +37,9 @@ function BottomTabNavigator() {
         tabBarInactiveTintColor: "#cecece",
         tabBarStyle: {
           height: 60,
-          backgroundColor: "#fff",
-          elevation: 0,
+          backgroundColor: "#fff", // Adjust color as needed
+          elevation: 0, // Removes shadow on Android
+          borderTopWidth: 0, // Removes border on iOS
         },
       })}
     >
@@ -49,10 +52,13 @@ function BottomTabNavigator() {
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="HomeTabs" component={BottomTabNavigator} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <SafeAreaView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="HomeTabs" component={BottomTabNavigator} />
+          <Stack.Screen name="CategoryImages" component={CategoryImages} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </SafeAreaView>
   );
 }
