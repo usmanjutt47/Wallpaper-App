@@ -75,8 +75,8 @@ export default function Home() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <StatusBar style="auto" />
       <View style={styles.searchContainer}>
+        <StatusBar style="auto" />
         <Ionicons
           name="search"
           size={24}
@@ -123,7 +123,6 @@ export default function Home() {
           <Carousel
             width={width * 0.9}
             height={height * 0.9}
-            autoPlay={true}
             renderItem={({ item }) => (
               <Image
                 source={{ uri: item.largeImageURL }}
